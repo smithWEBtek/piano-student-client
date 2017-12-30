@@ -1,10 +1,9 @@
-
 .AddForm {
   float: left;
   text-align: left;
   padding: 15px;
   width: 100%;
-  height: 100%; 
+  height: 100%;
   color: rgb(75, 67, 67);
   font-family: 'Open Sans', sans-serif;
 }
@@ -14,7 +13,7 @@
 }
 
 .Success:hover {
-  background-color: rgb(165, 238, 193);
+  background-color: rgb(187, 250, 211);
 }
 
 .FormInstructions {

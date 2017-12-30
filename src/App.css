@@ -1,13 +1,11 @@
 .App {
-  text-align: center;
+  text-align: left;
 }
   
-.App-title {
+.Title {
+  color: rgb(76, 120, 161);
   font-size: 1.5em;
-}
-
-.App-intro {
-  font-size: large;
+  font-family: 'Open Sans', sans-serif;
 }
 
 @keyframes App-logo-spin {

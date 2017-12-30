@@ -9,16 +9,21 @@ const ResourceService = {
     return fetch(`${API_URL}/resources/${id}`).then(response => response.json())
   },
 
-  createResource(Resource) {
+  createResource(resource) {
     const request = {
       method: 'POST',
-      body: JSON.stringify({resource: Resource}),
+      body: JSON.stringify({resource: resource}),
       headers: {
         'Content-Type': 'application/json'
       }
     }
     return fetch(`${API_URL}/resources`, request).then(response => response.json())
+  },
+
+  deleteResource(id) {
+    fetch(`${API_URL}/resources/${id}`, { method: 'DELETE' });
   }
+
 }
 
 export default ResourceService;

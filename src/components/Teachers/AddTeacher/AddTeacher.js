@@ -2,81 +2,67 @@ import React, { Component } from 'react';
 import classes from './AddTeacher.css';
 
 class AddTeacher extends Component {
-  constructor(props){
-    super(props)
-
-    this.state = {   
-      formVisible: false,   
-      firstname: '',
-      lastname: '',
-      email: ''
-    }
+  state = {
+    formVisible: false,
+    firstname: '',
+    lastname: '',
+    email: ''
   }
 
   handleShowForm = (event) => {
-    this.setState({formVisible: !this.state.formVisible})
+    this.setState({ formVisible: !this.state.formVisible })
   }
- 
+
   handleOnChange = (event) => {
     const { name, value } = event.target;
-    this.setState({
-      [name]: value
-    })
+    this.setState({ [name]: value })
   }
- 
+
   handleSubmit = (e) => {
     e.preventDefault();
     const teacher = this.state;
     this.props.addTeacher(teacher)
     this.setState({
+      formVisible: false,
       firstname: '',
       lastname: '',
-      email: '',
-      formVisible: false,
-    })
+      email: ''
+    });
   }
 
   render() {
     return (
-      <div className={classes.AddTeacher}>
-        <button onClick={(event)=>this.handleShowForm(event)}>
-          Add Teacher</button>
-        { this.state.formVisible
-          ? 
+      <div>
+        <p className={classes.FormInstructions}>Complete form and click 'Add Teacher'</p>
         <form onSubmit={this.handleSubmit} className={classes.AddForm}>
-
           <p><label htmlFor="teacher_name">First name </label>
-          <input 
-            type="text"
-            name="firstname"
-            value={this.state.firstname} 
-            onChange={(event)=>this.handleOnChange(event)} 
-            placeholder="firstname"
-          /></p>
-
+            <input
+              type="text"
+              name="firstname"
+              value={this.state.firstname}
+              onChange={(event) => this.handleOnChange(event)}
+              placeholder="firstname"
+            /></p>
           <p><label htmlFor="teacher_name">Last name </label>
-          <input 
-            type="text"
-            name="lastname"
-            value={this.state.lastname} 
-            onChange={(event)=>this.handleOnChange(event)} 
-            placeholder="lastname"
-          /></p>
-
+            <input
+              type="text"
+              name="lastname"
+              value={this.state.lastname}
+              onChange={(event) => this.handleOnChange(event)}
+              placeholder="lastname"
+            /></p>
           <p><label htmlFor="teacher_name">Email </label>
-          <input 
-            type="text"
-            name="email"
-            value={this.state.email} 
-            onChange={(event)=>this.handleOnChange(event)} 
-            placeholder="email"
-          /></p>
- 
-          <button>Add Teacher</button>
+            <input
+              type="text"
+              name="email"
+              value={this.state.email}
+              onChange={(event) => this.handleOnChange(event)}
+              placeholder="email"
+            /></p>
+          <button onClick={this.props.addTeacherCancel} className={classes.Danger}>CANCEL</button>
+          <button className={classes.Success}>ADD Teacher</button>
         </form>
-        : null
-        }
-      </div>   
+      </div>
     )
   }
 }

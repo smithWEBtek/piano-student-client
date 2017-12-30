@@ -1,3 +1,5 @@
-.Resources {
-  color: blueviolet;
+.Resources td {
+  color: black;
+  padding: 4px;
+  font-family: 'Open Sans', sans-serif;
 }

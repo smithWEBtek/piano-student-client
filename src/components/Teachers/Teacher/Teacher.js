@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { Component } from 'react';
 import classes from './Teacher.css';
+import TeacherStudents from './TeacherStudents';
 
 const teacher = (props) => (
-  <div>
-    <fieldset>
-      <p className={classes.Teacher}>Name: {props.teacher.firstname} {props.teacher.lastname}</p>
-      <p className={classes.Teacher}>Email: {props.teacher.email}</p>
-    </fieldset>
+  <div className={classes.Teacher} >
+    <p>Teacher: {props.firstname} {props.lastname}</p>
+    <p>Email: {props.email}</p>
+    <div> {props.firstname}'s students: <TeacherStudents teacherStudents={props.students} /></div>
+    <button onClick={props.close}>Close</button>
   </div>
 )
 
