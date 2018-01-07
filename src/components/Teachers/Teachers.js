@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import * as actionTypes from '../../store/actions/actionTypes';
+import { connect } from 'react-redux';
+
 import { Table } from 'reactstrap';
 import Teacher from './Teacher/Teacher';
 import TeacherService from './TeacherService';
@@ -9,50 +12,25 @@ import Modal from '../UI/Modal/Modal';
 
 class Teachers extends Component {
   state = {
-    teachers: [],
     teacher: null,
-    addedTeacher: null,
+    showTeacher: false,
     addingTeacher: false,
-    showTeacher: false
   }
 
-  componentDidMount() {
-    TeacherService.fetchTeachers()
-      .then(response => this.setState({ teachers: response }));
-  }
-
-  // handleEditTeacher
-
-  deleteTeacherHandler = (id) => {
-    TeacherService.deleteTeacher(id);
-    let teachers = [...this.state.teachers];
-    teachers = teachers.filter(teacher => teacher.id !== id);
-    this.setState({ teachers: teachers });
-  };
-
-  // closeTeacherHandler = () => {
-  //   this.setState({
-  //     teacher: null
-  //   });
+  // addTeacherHandler = teacher => {
+  //   if (teacher.lastname !== "") {
+  //     this.setState({ addingTeacher: true })
+  //     TeacherService.createTeacher(teacher)
+  //       .then(teacher => this.setState({
+  //         teachers: this.props.tch.concat(teacher)
+  //       })
+  //       )
+  //   }
+  //   this.setState({ addingTeacher: false })
   // }
 
-  addTeacherHandler = teacher => {
-    if (teacher.email !== "") {
-      this.setState({ addingTeacher: true })
-      TeacherService.createTeacher(teacher)
-        .then(teacher => this.setState({
-          teachers: this.state.teachers.concat(teacher)
-        })
-        )
-    }
-    this.setState({ addingTeacher: false })
-  }
-
   addTeacherCancelHandler = () => {
-    this.setState({
-      teacher: null,
-      addingTeacher: false
-    });
+    this.setState({ addingTeacher: false });
   }
 
   showAddTeacherModal = () => {
@@ -69,14 +47,11 @@ class Teachers extends Component {
   }
 
   showTeacherCancelHandler = () => {
-    this.setState({
-      showTeacher: false
-    });
+    this.setState({ showTeacher: false });
   }
 
   render() {
-
-    const teachersList = this.state.teachers.map(teacher => {
+    const teachersList = this.props.tch.map(teacher => {
       return (
         <Aux key={teacher.id}>
           <tr>
@@ -84,10 +59,10 @@ class Teachers extends Component {
             <td>{teacher.firstname}</td>
             <td>{teacher.lastname}</td>
             <td>{teacher.email}</td>
-            <td>{teacher.students.length}</td>
+            {/* <td>{teacher.students.length}</td> */}
             <td><button onClick={() => this.showTeacherHandler(teacher.id)}>Show</button></td>
             <td><button>Edit</button></td>
-            <td><button onClick={() => this.deleteTeacherHandler(teacher.id)}>X</button></td>
+            <td><button onClick={() => this.props.onTeacherRemoved(teacher.id)}>X</button></td>
           </tr>
         </Aux>
       )
@@ -101,7 +76,7 @@ class Teachers extends Component {
             show={this.state.addingTeacher}
             modalClosed={this.addTeacherCancelHandler}>
             <AddTeacher
-              addTeacher={this.addTeacherHandler}
+              addTeacher={this.props.onTeacherAdded}
               addTeacherCancel={this.addTeacherCancelHandler} />
           </Modal>
           <Table className={classes.Teachers}>
@@ -111,7 +86,7 @@ class Teachers extends Component {
                 <th>First</th>
                 <th>Last</th>
                 <th>Email</th>
-                <th>#Students</th>
+                {/* <th>#Students</th> */}
                 <th>Show</th>
                 <th>Edit</th>
                 <th>Del</th>
@@ -140,4 +115,17 @@ class Teachers extends Component {
   }
 }
 
-export default Teachers;
+const mapStateToProps = state => {
+  return {
+    tch: state.tch.teachers
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onTeacherAdded: (data) => dispatch({ type: actionTypes.ADD_TEACHER, teacherData: data }),
+    onTeacherRemoved: (id) => dispatch({ type: actionTypes.REMOVE_TEACHER, teacherId: id })
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Teachers);

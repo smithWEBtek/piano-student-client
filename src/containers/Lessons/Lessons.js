@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import * as actionTypes from '../../store/actions/actionTypes';
+import { connect } from 'react-redux';
+
 import { Table } from 'reactstrap';
 import classes from './Lessons.css';
 import LessonService from './LessonService';
@@ -9,30 +12,10 @@ import Modal from '../../components/UI/Modal/Modal';
 
 class Lessons extends Component {
   state = {
-    lessons: [],
     lesson: null,
     addedLesson: null,
-    addingLesson: false
-  }
-
-  componentDidMount() {
-    LessonService.fetchLessons()
-      .then(response => this.setState({ lessons: response }))
-  }
-
-  // handleEditLesson
-
-  deleteLessonHandler = (id) => {
-    LessonService.deleteLesson(id);
-    let lessons = [...this.state.lessons];
-    lessons = lessons.filter(lesson => lesson.id !== id);
-    this.setState({ lessons: lessons });
-  };
-
-  closeLessonHandler = () => {
-    this.setState({
-      lesson: null
-    });
+    addingLesson: false,
+    showLesson: false
   }
 
   addLessonHandler = (lesson) => {
@@ -47,36 +30,50 @@ class Lessons extends Component {
     this.setState({ addingLesson: false });
   }
 
-  addLessonCancelHandler = () => {
-    this.setState({
-      lesson: null,
-      addingLesson: false
-    })
+  addLessonHandler = () => {
+    this.setState({ addingLesson: false });
   }
 
-  showModal = () => {
+  addLessonCancelHandler = () => {
+    this.setState({
+      addingLesson: false
+    });
+  }
+
+  showAddLessonModal = () => {
+    // this.props.onLessonAdded
     this.setState({ addingLesson: true })
   }
 
-  render() {
-    const showLesson = (id) => {
-      LessonService.fetchLesson(id)
-        .then(response => this.setState({ lesson: response }));
-    };
+  showLessonHandler = (id) => {
+    LessonService.fetchLesson(id)
+      .then(response => this.setState({
+        lesson: response,
+        showLesson: true
+      })
+      );
+  }
 
-    const lessonsList = this.state.lessons.map((lesson, index) => {
-      // console.log(lesson)
+  showLessonCancelHandler = () => {
+    this.setState({
+      showLesson: false
+    });
+  }
+
+  render() {
+    const lessonsList = this.props.les.map((lesson, index) => {
       return (
         <Aux key={index}>
           <tr>
             <td>{lesson.id}</td>
             <td>{lesson.date}</td>
-            <td>{lesson.teacher_id}</td>
-            <td>{lesson.student_id}</td>
+            {/* <td>{lesson.teacher.lastname}</td> */}
+            {/* <td>{lesson.student.lastname}</td> */}
             <td>{lesson.notes}</td>
-            <td><button onClick={() => showLesson(lesson.id)}>Show</button></td>
+            {/* <td>{lesson.resources.length}</td> */}
+            <td><button onClick={() => this.showLessonHandler(lesson.id)}>Show</button></td>
             <td><button>Edit</button></td>
-            <td><button onClick={() => this.deleteLessonHandler(lesson.id)}>X</button></td>
+            <td><button onClick={() => this.props.onLessonRemoved(lesson.id)}>X</button></td>
           </tr>
         </Aux>
       )
@@ -85,26 +82,26 @@ class Lessons extends Component {
     return (
       <Aux>
         <div style={{ margin: '30px' }}>
-          <button onClick={this.showModal}>AddLesson</button>
-
-          <Modal show={this.state.addingLesson} modalClosed={this.addLessonCancelHandler}>
+          <button onClick={this.showAddLessonModal}>AddLesson</button>
+          <Modal
+            show={this.state.addingLesson}
+            modalClosed={this.addLessonCancelHandler}>
             <AddLesson
-              addLesson={this.addLessonHandler}
+              addLesson={this.props.onLessonAdded}
               addLessonCancel={this.addLessonCancelHandler} />
           </Modal>
-
           <Table className={classes.Lessons}>
             <thead>
               <tr>
                 <th>ID</th>
                 <th>Date</th>
-                <th>Teacher</th>
-                <th>Student</th>
+                {/* <th>Teacher</th> */}
+                {/* <th>Student</th> */}
                 <th>Notes</th>
-                <th>Resources</th>
-                <th>Show</th>
-                <th>Edit</th>
-                <th>Del</th>
+                {/* <th>#Resources</th> */}
+                <th></th>
+                <th></th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -112,18 +109,35 @@ class Lessons extends Component {
             </tbody>
           </Table>
         </div>
-        <Aux>
-          {this.state.lesson ? <Lesson
-            date={this.state.lesson.date}
-            teacher={this.state.lesson.teacher_id}
-            student={this.state.lesson.student_id}
-            notes={this.state.lesson.notes}
-            resources={this.state.lesson.resources}
-            close={this.closeLessonHandler} /> : null}
-        </Aux>
+        <Modal
+          show={this.state.showLesson}
+          modalClosed={this.showLessonCancelHandler}>
+          <Aux>
+            {this.state.lesson ? <Lesson
+              date={this.state.lesson.date}
+              // teacher={this.state.lesson.teacher.lastname}
+              // student={this.state.lesson.student.lastname}
+              notes={this.state.lesson.notes}
+              // resources={this.state.lesson.resources}
+              close={this.showLessonCancelHandler} /> : null}
+          </Aux>
+        </Modal>
       </Aux>
     )
   }
 }
 
-export default Lessons;
+const mapStateToProps = state => {
+  return {
+    les: state.les.lessons
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onLessonAdded: (data) => dispatch({ type: actionTypes.ADD_LESSON, lessonData: data }),
+    onLessonRemoved: (id) => dispatch({ type: actionTypes.REMOVE_LESSON, lessonId: id })
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Lessons);

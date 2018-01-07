@@ -1,75 +1,83 @@
-import React, { Component } from 'react';
-import { Table } from 'reactstrap';
-import AddStudent from './AddStudent/AddStudent';
-import Student from './Student/Student';
-import StudentService from './StudentService';
-import classes from './Students.css';
-import Aux from '../../hoc/Aux/Aux';
-import Modal from '../UI/Modal/Modal';
+import React, { Component } from 'react'
+import * as actionCreators from '../../store/actions/index'
+import { connect } from 'react-redux'
+
+import { Table } from 'reactstrap'
+import classes from './Students.css'
+import Aux from '../../hoc/Aux/Aux'
+import Modal from '../UI/Modal/Modal'
+
+import Student from './Student/Student'
+import CreateStudent from './CreateStudent/CreateStudent'
+import EditStudent from './EditStudent/EditStudent'
+import StudentStats from './StudentStats/StudentStats'
 
 class Students extends Component {
   state = {
-    students: [],
-    student: {},
-    addedStudent: null,
-    addingStudent: false,
-    showStudent: false
+    student: null,
+    showStudent: false,
+    createStudent: false,
+    editStudent: false
   }
 
   componentDidMount() {
-    StudentService.fetchStudents()
-      .then(response => this.setState({ students: response }))
+    this.props.onFetchStudents()
   }
 
-  // handleEditStudent
-
-  deleteStudentHandler = (id) => {
-    StudentService.deleteStudent(id);
-    let students = [...this.state.students];
-    students = students.filter(student => student.id !== id);
-    this.setState({ students: students });
-  };
-
-  addStudentHandler = (student) => {
-    if (student.teacher_id !== "") {
-      this.setState({ addingStudent: true })
-      StudentService.createStudent(student)
-        .then(student => this.setState({
-          students: this.state.students.concat(student)
-        })
-        )
-    }
-    this.setState({ addingStudent: false });
+  //********CREATE_STUDENT form handling **************************
+  createStudentForm = () => {
+    this.setState({ createStudent: true })
   }
 
-  addStudentCancelHandler = () => {
+  createStudentFormCancel = () => {
+    this.setState({ createStudent: false })
+  }
+
+  createStudent = (newStudentData) => {
+    this.props.onStudentCreate(newStudentData)
+    this.setState({ createStudent: false })
+  }
+
+
+  //********SHOW_STUDENT form handling**************************
+  showStudent = (id) => {
+    let student = this.props.students.filter(student => student.id === id)[0]
     this.setState({
-      student: null,
-      addingStudent: false
-    });
+      student: student,
+      showStudent: true
+    })
   }
 
-  showAddStudentModal = () => {
-    this.setState({ addingStudent: true });
+  showStudentClose = () => {
+    this.setState({ showStudent: false })
   }
 
-  showStudentHandler = (id) => {
-    StudentService.fetchStudent(id)
-      .then(response => this.setState({
-        student: response,
-        showStudent: true
-      })
-      );
-  }
 
-  showStudentCancelHandler = () => {
+  //********EDIT_STUDENT form handling**************************
+  showEditStudentForm = (id) => {
+    let student = this.props.students.filter(student => student.id === id)[0]
     this.setState({
-      showStudent: false
-    });
+      student: student,
+      editStudent: true
+    })
+  }
+
+  editStudentFalse = () => {
+    this.setState({ editStudent: false })
+  }
+
+  editStudentUpdate = (data) => {
+    this.props.onStudentUpdate(data)
+    this.setState({ student: null, editStudent: false })
+  }
+
+  //********DELETE_STUDENT**************************
+  deleteStudent = () => {
+    // be gone!
   }
 
   render() {
-    const studentsList = this.state.students.map(student => {
+    let studentsList = this.props.students.map(student => {
       return (
         <Aux key={student.id}>
           <tr>
@@ -77,25 +85,70 @@ class Students extends Component {
             <td>{student.firstname}</td>
             <td>{student.lastname}</td>
             <td>{student.email}</td>
-            <td><button onClick={() => this.showStudentHandler(student.id)}>Show</button></td>
-            <td><button>Edit</button></td>
-            <td><button onClick={() => this.deleteStudentHandler(student.id)}>X</button></td>
+            <td><button
+              onClick={() => this.showStudent(student.id)}
+              className={classes.Success}>Show</button></td>
+            <td><button
+              onClick={() => this.showEditStudentForm(student.id)}
+              className={classes.Edit}>Edit</button></td>
+            <td><button
+              onClick={() => this.props.onStudentDelete(student.id)}
+              className={classes.Danger}>X</button></td>
           </tr>
         </Aux>
       )
-    });
+    })
 
     return (
       <Aux>
         <div style={{ margin: '30px' }}>
-          <button onClick={this.showAddStudentModal}>Add Student</button>
+
+          {/*********CREATE STUDENT MODAL********************************************/}
+          <button onClick={this.createStudentForm}>Add Student</button>
           <Modal
-            show={this.state.addingStudent}
-            modalClosed={this.addStudentCancelHandler}>
-            <AddStudent
-              addStudent={this.addStudentHandler}
-              addStudentCancel={this.addStudentCancelHandler} />
+            show={this.state.createStudent}
+            modalClosed={this.createStudentFormCancel}>
+            <CreateStudent
+              createStudent={(newStudentData) => this.createStudent(newStudentData)}
+              createStudentCancel={this.createStudentFormCancel} />
           </Modal>
+
+          {/**********SHOW STUDENT MODAL**********************************************/}
+          <Modal
+            show={this.state.showStudent}
+            modalClosed={this.showStudentClose}>
+            <Aux>
+              {this.state.student ? <Student
+                id={this.state.student.id}
+                firstname={this.state.student.firstname}
+                lastname={this.state.student.lastname}
+                email={this.state.student.email}
+                level={this.state.student.level}
+                teacher_id={this.state.student.teacher_id}
+                close={this.showStudentClose}
+              /> : <p> No data for student show</p>}
+            </Aux>
+          </Modal>
+
+          {/**********EDIT STUDENT MODAL**********************************************/}
+          <Modal
+            show={this.state.editStudent}
+            modalClosed={this.editStudentCancelHandler}>
+            <Aux>
+              {this.state.student ? <EditStudent
+                id={this.state.student.id}
+                firstname={this.state.student.firstname}
+                lastname={this.state.student.lastname}
+                email={this.state.student.email}
+                level={this.state.student.level}
+                teacher_id={this.state.student.teacher_id}
+                close={this.editStudentFalse}
+                updateStudent={(data) => this.editStudentUpdate(data)}
+              /> : <p>no student data yet...</p>}
+            </Aux>
+          </Modal>
+
+          {/**********STUDENTS INDEX TABLE*************************************/}
           <Table className={classes.Students}>
             <thead>
               <tr>
@@ -113,22 +166,27 @@ class Students extends Component {
             </tbody>
           </Table>
         </div>
-        <Modal
-          show={this.state.showStudent}
-          modalClosed={this.showStudentCancelHandler}>
-          <Aux>
-            <Student
-              firstname={this.state.student.firstname}
-              lastname={this.state.student.lastname}
-              email={this.state.student.email}
-              level={this.state.student.level}
-              teacher_id={this.state.student.teacher_id}
-              close={this.showStudentCancelHandler} />
-          </Aux>
-        </Modal>
+        {/**********STUDENTS StudentStats*************************************/}
+        <StudentStats students={this.props.students} />
       </Aux>
     )
   }
 }
 
-export default Students;
+const mapStateToProps = state => {
+  return {
+    students: state.stu.students
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onStudentCreate: (newStudentData) => dispatch(actionCreators.createStudent(newStudentData)),
+    onStudentUpdate: (data) => dispatch(actionCreators.updateStudent(data)),
+    onStudentDelete: (id) => dispatch(actionCreators.deleteStudent(id)),
+    onFetchStudent: (id) => dispatch(actionCreators.fetchStudent(id)),
+    onFetchStudents: () => dispatch(actionCreators.fetchStudents())
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Students)

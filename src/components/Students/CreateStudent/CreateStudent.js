@@ -1,18 +1,13 @@
 import React, { Component } from 'react';
-import classes from './AddStudent.css';
+import classes from './CreateStudent.css';
 
-class AddStudent extends Component {
+class CreateStudent extends Component {
   state = {
-    formVisible: false,
     firstname: '',
     lastname: '',
     email: '',
     level: '',
     teacher_id: ''
-  }
-
-  handleShowForm = (event) => {
-    this.setState({ formVisible: !this.state.formVisible })
   }
 
   handleOnChange = (event) => {
@@ -22,23 +17,23 @@ class AddStudent extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const studentData = this.state;
-    this.props.addStudent(studentData)
+    const newStudentData = this.state;
+    this.props.createStudent(newStudentData)
     this.setState({
-      formVisible: false,
       firstname: '',
       lastname: '',
       email: '',
       level: '',
       teacher_id: ''
     });
+    this.props.createStudentCancel()
   }
 
   render() {
     return (
       <div>
         <p className={classes.FormInstructions}>Complete form and click 'Add Student'</p>
-        <form onSubmit={this.handleSubmit} className={classes.AddForm}>
+        <form onSubmit={this.handleSubmit} className={classes.Form}>
           <p><label htmlFor="student_name">First name </label>
             <input
               type="text"
@@ -46,7 +41,7 @@ class AddStudent extends Component {
               value={this.state.firstname}
               onChange={(event) => this.handleOnChange(event)}
               placeholder="firstname"
-            /></p>
+              required /></p>
           <p><label>Last name </label>
             <input
               type="text"
@@ -54,7 +49,7 @@ class AddStudent extends Component {
               value={this.state.lastname}
               onChange={(event) => this.handleOnChange(event)}
               placeholder="lastname"
-            /></p>
+              required /></p>
           <p><label>Email </label>
             <input
               type="text"
@@ -62,7 +57,7 @@ class AddStudent extends Component {
               value={this.state.email}
               onChange={(event) => this.handleOnChange(event)}
               placeholder="email"
-            /></p>
+              required /></p>
           <p><label>Level </label>
             <input
               type="text"
@@ -70,20 +65,26 @@ class AddStudent extends Component {
               value={this.state.level}
               onChange={(event) => this.handleOnChange(event)}
               placeholder="level"
-            /></p>
+              required /></p>
           <p><label>Teacher ID </label>
             <input
               type="text"
               name="teacher_id"
               value={this.state.teacher_id}
               onChange={(event) => this.handleOnChange(event)}
-              placeholder="teacher_id" /></p>
-          <button onClick={this.props.addStudentCancel} className={classes.Danger}>CANCEL</button>
-          <button className={classes.Success}>ADD Student</button>
+              placeholder="teacher_id"
+              required /></p>
+          <button
+            type="button"
+            onClick={this.props.createStudentCancel}
+            className={classes.Danger}
+          >CANCEL</button>
+          <button className={classes.Success}
+          >CREATE Student</button>
         </form>
       </div>
     )
   }
 }
 
-export default AddStudent;
+export default CreateStudent;
