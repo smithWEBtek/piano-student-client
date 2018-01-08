@@ -1,10 +1,13 @@
-.Students {
+.MyTable {
   height: 100%;
   margin: 10px;
   padding: 10px;
+  border: 2px solid black;
+  width: 100%;
+  float: left;
 }
 
-.Students td {
+.MyTable td {
   color: black;
   padding: 4px;
   font-family: 'Open Sans', sans-serif;

@@ -11,11 +11,15 @@ import Aux from '../../hoc/Aux/Aux';
 import Modal from '../../components/UI/Modal/Modal';
 
 class Lessons extends Component {
-  state = {
-    lesson: null,
-    addedLesson: null,
-    addingLesson: false,
-    showLesson: false
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      lesson: null,
+      addedLesson: null,
+      addingLesson: false,
+      showLesson: false
+    }
   }
 
   addLessonHandler = (lesson) => {
@@ -41,7 +45,7 @@ class Lessons extends Component {
   }
 
   showAddLessonModal = () => {
-    // this.props.onLessonAdded
+    // this.props.onLessonCreate
     this.setState({ addingLesson: true })
   }
 
@@ -73,7 +77,7 @@ class Lessons extends Component {
             {/* <td>{lesson.resources.length}</td> */}
             <td><button onClick={() => this.showLessonHandler(lesson.id)}>Show</button></td>
             <td><button>Edit</button></td>
-            <td><button onClick={() => this.props.onLessonRemoved(lesson.id)}>X</button></td>
+            <td><button onClick={() => this.props.onLessonDelete(lesson.id)}>X</button></td>
           </tr>
         </Aux>
       )
@@ -87,7 +91,7 @@ class Lessons extends Component {
             show={this.state.addingLesson}
             modalClosed={this.addLessonCancelHandler}>
             <AddLesson
-              addLesson={this.props.onLessonAdded}
+              addLesson={this.props.onLessonCreate}
               addLessonCancel={this.addLessonCancelHandler} />
           </Modal>
           <Table className={classes.Lessons}>
@@ -135,8 +139,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onLessonAdded: (data) => dispatch({ type: actionTypes.ADD_LESSON, lessonData: data }),
-    onLessonRemoved: (id) => dispatch({ type: actionTypes.REMOVE_LESSON, lessonId: id })
+    onLessonCreate: (data) => dispatch({ type: actionTypes.CREATE_LESSON, lessonData: data }),
+    onLessonDelete: (id) => dispatch({ type: actionTypes.DELETE_LESSON, lessonId: id })
   }
 }
 

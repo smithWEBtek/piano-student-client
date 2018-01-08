@@ -5,19 +5,23 @@ import { connect } from 'react-redux';
 import { Table } from 'reactstrap';
 import Teacher from './Teacher/Teacher';
 import TeacherService from './TeacherService';
-import AddTeacher from './AddTeacher/AddTeacher';
+import CreateTeacher from './CreateTeacher/CreateTeacher';
 import classes from './Teachers.css';
 import Aux from '../../hoc/Aux/Aux';
 import Modal from '../UI/Modal/Modal';
 
 class Teachers extends Component {
-  state = {
-    teacher: null,
-    showTeacher: false,
-    addingTeacher: false,
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      teacher: null,
+      showTeacher: false,
+      addingTeacher: false,
+    }
   }
 
-  // addTeacherHandler = teacher => {
+  // createTeacherHandler = teacher => {
   //   if (teacher.lastname !== "") {
   //     this.setState({ addingTeacher: true })
   //     TeacherService.createTeacher(teacher)
@@ -29,11 +33,11 @@ class Teachers extends Component {
   //   this.setState({ addingTeacher: false })
   // }
 
-  addTeacherCancelHandler = () => {
+  createTeacherCancelHandler = () => {
     this.setState({ addingTeacher: false });
   }
 
-  showAddTeacherModal = () => {
+  showCreateTeacherModal = () => {
     this.setState({ addingTeacher: true });
   }
 
@@ -62,7 +66,7 @@ class Teachers extends Component {
             {/* <td>{teacher.students.length}</td> */}
             <td><button onClick={() => this.showTeacherHandler(teacher.id)}>Show</button></td>
             <td><button>Edit</button></td>
-            <td><button onClick={() => this.props.onTeacherRemoved(teacher.id)}>X</button></td>
+            <td><button onClick={() => this.props.onTeacherDelete(teacher.id)}>X</button></td>
           </tr>
         </Aux>
       )
@@ -71,13 +75,13 @@ class Teachers extends Component {
     return (
       <Aux>
         <div style={{ margin: '30px' }}>
-          <button onClick={this.showAddTeacherModal}>AddTeacher</button>
+          <button onClick={this.showCreateTeacherModal}>CreateTeacher</button>
           <Modal
             show={this.state.addingTeacher}
-            modalClosed={this.addTeacherCancelHandler}>
-            <AddTeacher
-              addTeacher={this.props.onTeacherAdded}
-              addTeacherCancel={this.addTeacherCancelHandler} />
+            modalClosed={this.createTeacherCancelHandler}>
+            <CreateTeacher
+              createTeacher={this.props.onTeacherCreate}
+              createTeacherCancel={this.createTeacherCancelHandler} />
           </Modal>
           <Table className={classes.Teachers}>
             <thead>
@@ -123,8 +127,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onTeacherAdded: (data) => dispatch({ type: actionTypes.ADD_TEACHER, teacherData: data }),
-    onTeacherRemoved: (id) => dispatch({ type: actionTypes.REMOVE_TEACHER, teacherId: id })
+    onTeacherCreate: (data) => dispatch({ type: actionTypes.CREATE_TEACHER, teacherData: data }),
+    onTeacherDelete: (id) => dispatch({ type: actionTypes.DELETE_TEACHER, teacherId: id })
   }
 }
 
